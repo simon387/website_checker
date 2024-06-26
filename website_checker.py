@@ -43,6 +43,11 @@ def check_website(url, text, is_down):
 			return True
 	except requests.exceptions.RequestException as e:
 		log.info(f"An error occurred: {e}")
+		if is_down:
+			log.info(f"Email already sent, skipping")  # mail already sent
+		else:
+			send_email(is_down)
+		return True
 
 
 def send_email(is_down):
