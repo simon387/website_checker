@@ -1,11 +1,18 @@
+import base64
 import logging as log
-import smtplib
+import os.path
 import time
-from email.mime.multipart import MIMEMultipart
+import uuid
 from email.mime.text import MIMEText
+from email.utils import formatdate
 from logging.handlers import RotatingFileHandler
 
 import requests
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 
 import Constants
 
@@ -22,59 +29,108 @@ log.basicConfig(
 	level=Constants.LOG_LEVEL
 )
 
+# If modifying these scopes, delete the file token.json.
+SCOPES = ["https://www.googleapis.com/auth/gmail.send"]
 
-def check_website(url, text, is_down):
+
+def create_message(sender, to, subject, message_text):
+	"""Create a message for an email."""
+	message = MIMEText(message_text)
+	message['To'] = to
+	message['From'] = sender
+	message['Subject'] = subject
+	message['Date'] = formatdate(localtime=True)
+	message['Message-ID'] = f'<{uuid.uuid4()}@gmail.com>'
+	raw = base64.urlsafe_b64encode(message.as_bytes()).decode()
+	return {'raw': raw}
+
+
+def send_message(service, user_id, message):
+	"""Send an email message."""
+	try:
+		message = service.users().messages().send(userId=user_id, body=message).execute()
+		log.info(f'Message Id: {message["id"]}')
+		return message
+	except HttpError as error:
+		log.error(f'An error occurred: {error}')
+		return None
+
+
+def check_website(url, text, already_down):
 	try:
 		response = requests.get(url)
 		response.raise_for_status()  # Raise an HTTPError for bad responses
 		if text in response.text:
 			log.info(f"The text '{text}' was found on the website. The site is up and running!")
-			if not is_down:
+			if not already_down:
 				log.info(f"The server is up or Email already sent, skipping")  # mail already sent
 			else:
-				send_email(is_down)
+				send_email(False)
 			return False
 		else:
 			log.error(f"The text '{text}' was not found on the website! SITE MAY BE DOWN!")
-			if is_down:
+			if already_down:
 				log.info(f"Email already sent, skipping")  # mail already sent
 			else:
-				send_email(is_down)
+				send_email(True)
 			return True
 	except requests.exceptions.RequestException as e:
 		log.info(f"An error occurred: {e}")
-		if is_down:
+		if already_down:
 			log.info(f"Email already sent, skipping")  # mail already sent
 		else:
-			send_email(is_down)
+			send_email(already_down)
 		return True
 
 
 def send_email(is_down):
-	msg = MIMEMultipart()
-	msg['From'] = Constants.MAIL_FROM
-	msg['To'] = Constants.MAIL_TO  # if > 1, comma separate it
-	if is_down:
-		msg['Subject'] = Constants.MAIL_SUBJECT_DOWN
-		msg.attach(MIMEText(Constants.MAIL_BODY_DOWN, 'plain'))
-	else:
-		msg['Subject'] = Constants.MAIL_SUBJECT_UP
-		msg.attach(MIMEText(Constants.MAIL_BODY_UP, 'plain'))
+	"""Shows basic usage of the Gmail API.
+	Lists the user's Gmail labels and sends an email.
+	"""
+	creds = None
+	# The file token.json stores the user's access and refresh tokens, and is
+	# created automatically when the authorization flow completes for the first
+	# time.
+	if os.path.exists("token.json"):
+		creds = Credentials.from_authorized_user_file("token.json", SCOPES)
+	# If there are no (valid) credentials available, let the user log in.
+	if not creds or not creds.valid:
+		if creds and creds.expired and creds.refresh_token:
+			creds.refresh(Request())
+		else:
+			flow = InstalledAppFlow.from_client_secrets_file(
+				"credentials.json", SCOPES
+			)
+			creds = flow.run_local_server(port=0)
+		# Save the credentials for the next run
+		with open("token.json", "w") as token:
+			token.write(creds.to_json())
 
 	try:
-		server = smtplib.SMTP(Constants.SMTP_SERVER, int(Constants.SMTP_PORT))
-		server.starttls()
-		server.login(Constants.MAIL_APP_NAME, Constants.MAIL_APP_PASS)
-		text = msg.as_string()
-		server.sendmail(Constants.MAIL_FROM, Constants.MAIL_TO, text)
-		server.quit()
-		log.info("Email sent successfully")
-	except Exception as e:
-		log.error(f"Error on sending email: {e}")
+		# Call the Gmail API
+		service = build("gmail", "v1", credentials=creds)
+
+		# Send an email
+		sender = Constants.MAIL_FROM
+		to = Constants.MAIL_TO  # if > 1, comma separate it
+
+		if is_down:
+			subject = Constants.MAIL_SUBJECT_DOWN
+			message_text = Constants.MAIL_BODY_DOWN
+		else:
+			subject = Constants.MAIL_SUBJECT_UP
+			message_text = Constants.MAIL_BODY_UP
+
+		message = create_message(sender, to, subject, message_text)
+		send_message(service, "me", message)
+
+	except HttpError as error:
+		# TODO - Handle errors from gmail API.
+		log.error(f"An error occurred: {error}")
 
 
 if __name__ == '__main__':
-	is_server_down = False
+	is_server_down_alreyady_down = False
 	while True:
-		is_server_down = check_website(Constants.URL, Constants.TEXT, is_server_down)
+		is_server_down_alreyady_down = check_website(Constants.URL, Constants.TEXT, is_server_down_alreyady_down)
 		time.sleep(int(Constants.SLEEP))

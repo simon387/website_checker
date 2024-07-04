@@ -3,3 +3,5 @@ config.properties
 _PersonalTelegramOrganizer.log*
 _test.log*
 __pycache__/
+credentials.json
+token.json

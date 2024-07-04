@@ -1,3 +1,6 @@
+Version 1.2.0
+- switched to google console service
+
 Version 1.1.0
 - added warning mail
 
