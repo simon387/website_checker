@@ -1,3 +1,6 @@
+Version 1.2.1
+- fixed log file name
+
 Version 1.2.0
 - switched to google console service
 

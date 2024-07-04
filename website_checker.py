@@ -19,7 +19,7 @@ import Constants
 log.basicConfig(
 	handlers=[
 		RotatingFileHandler(
-			'_PersonalTelegramOrganizer.log',
+			'_website_checker.log',
 			maxBytes=10240000,
 			backupCount=5
 		),
