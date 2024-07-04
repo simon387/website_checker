@@ -1,11 +1,8 @@
 import logging as log
 import smtplib
-import time
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from logging.handlers import RotatingFileHandler
-
-import requests
 
 import Constants
 

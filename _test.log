@@ -1,2 +1,0 @@
-2024-07-03 13:35:40,266 - root - ERROR - Error on sending email: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials a640c23a62f3a-a72aaf60447sm498078566b.59 - gsmtp')
-2024-07-03 13:36:16,757 - root - ERROR - Error on sending email: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials a640c23a62f3a-a72ab0b7ff4sm499366366b.220 - gsmtp')
