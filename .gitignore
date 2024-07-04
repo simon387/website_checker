@@ -1,6 +1,6 @@
 .idea
 config.properties
-_PersonalTelegramOrganizer.log*
+_website_checker.log*
 _test.log*
 __pycache__/
 credentials.json
