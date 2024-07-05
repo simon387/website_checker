@@ -38,20 +38,20 @@ def check_website(url, text, already_down):
 		response = requests.get(url)
 		response.raise_for_status()  # Raise an HTTPError for bad responses
 		if text in response.text:
-			message = f"Text '{text}' found on website {url}."
+			log_message = f"Text '{text}' found on website {url}."
 			if not already_down:
-				message += f" Server is up or Email already sent, skipping"  # mail already sent
+				log_message += f" Server is up or Email already sent, skipping"  # mail already sent
 			else:
 				send_email(url, False)
-			log.info(message)
+			log.info(log_message)
 			return False
 		else:
-			message = f"Text '{text}' not found on website {url}! WEBSITE MAY BE DOWN!"
+			log_message = f"Text '{text}' not found on website {url}! WEBSITE MAY BE DOWN!"
 			if already_down:
-				message += f" Email already sent, skipping"  # mail already sent
+				log_message += f" Email already sent, skipping"  # mail already sent
 			else:
 				send_email(url, True)
-			log.error(message)
+			log.error(log_message)
 			return True
 	except requests.exceptions.RequestException as e:
 		log.info(f"An error occurred: {e}")
@@ -62,9 +62,7 @@ def check_website(url, text, already_down):
 		return True
 
 
-def send_email(url, is_down):
-	"""sends an email with the Gmail API.
-	"""
+def send_email(url, is_down):  # sends an email with the Gmail API.
 	creds = None
 	# The file token.json stores the user's access and refresh tokens, and is
 	# created automatically when the authorization flow completes for the first
