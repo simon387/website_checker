@@ -61,15 +61,15 @@ def check_website(url, text, already_down):
 		response = requests.get(url)
 		response.raise_for_status()  # Raise an HTTPError for bad responses
 		if text in response.text:
-			message = f"The text '{text}' was found on the website {url}. The site is up and running!"
+			message = f"Text '{text}' found on website {url}."
 			if not already_down:
-				message += f" The server is up or Email already sent, skipping"  # mail already sent
+				message += f" Server is up or Email already sent, skipping"  # mail already sent
 			else:
 				send_email(url, False)
 			log.info(message)
 			return False
 		else:
-			message = f"The text '{text}' was not found on the website {url}! SITE MAY BE DOWN!"
+			message = f"Text '{text}' not found on website {url}! WEBSITE MAY BE DOWN!"
 			if already_down:
 				message += f" Email already sent, skipping"  # mail already sent
 			else:
