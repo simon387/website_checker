@@ -126,12 +126,12 @@ def send_message(service, user_id, message):
 if __name__ == '__main__':
 	urls = Constants.URLS.split(",")
 	texts = Constants.TEXTS.split(",")
-	is_server_alreyady_down_array = [False] * len(urls)
+	is_server_already_down_array = [False] * len(urls)
 	#
 	if len(urls) != len(texts):
 		log.error("config.properies's data is inconsistent!")
 	else:
 		while True:
 			for i in range(len(urls)):
-				is_server_alreyady_down_array[i] = check_website(urls[i], texts[i], is_server_alreyady_down_array[i])
+				is_server_already_down_array[i] = check_website(urls[i], texts[i], is_server_already_down_array[i])
 				time.sleep(int(Constants.SLEEP))
