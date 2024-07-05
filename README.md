@@ -37,14 +37,15 @@ log.level=info
 urls=www.sito.com,www.other.com
 # for now, comma in text is not supported!
 texts=fool,bar
+# wait time (seconds) between website checks
 sleep=60
 #
 mail_from=
 mail_to=mail1@gmail.com,mail2@gmail.com
-mail_subject_down=sito.com down!
-mail_body_down=Il sito sito.com di prod potrebbe essere down!
-mail_subject_up=sito.com up!
-mail_body_up=Il sito sito.com di prod è tornato up!
+mail_subject_down=down!
+mail_body_down=potrebbe essere down!
+mail_subject_up=up!
+mail_body_up=è tornato up!
 ```
 
 ## TODO

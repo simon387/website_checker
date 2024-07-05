@@ -1,7 +1,11 @@
+Version 1.3.1
+- better logs
+- better readme
+
 Version 1.3.0
 - multi-site
-+ better logs
-+ removed old unused properties
+- better logs
+- removed old unused properties
 
 Version 1.2.1
 - fixed log file name
