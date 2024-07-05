@@ -63,7 +63,7 @@ def check_website(url, text, already_down):
 
 
 def send_email(url, is_down):
-	"""sends an email wit the Gmail API.
+	"""sends an email with the Gmail API.
 	"""
 	creds = None
 	# The file token.json stores the user's access and refresh tokens, and is
