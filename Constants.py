@@ -14,16 +14,10 @@ elif case == "error":
 	LOG_LEVEL = logging.ERROR
 else:
 	LOG_LEVEL = logging.DEBUG
-
-URL = config.get(APPLICATION, "url")
-TEXT = config.get(APPLICATION, "text")
+#
+URLS = config.get(APPLICATION, "urls")
+TEXTS = config.get(APPLICATION, "texts")  # for now, comma in text is not supported!
 SLEEP = config.get(APPLICATION, "sleep")
-#
-MAIL_APP_NAME = config.get(APPLICATION, "mail_app_name")
-MAIL_APP_PASS = config.get(APPLICATION, "mail_app_pass")
-#
-SMTP_SERVER = config.get(APPLICATION, "smtp_server")
-SMTP_PORT = config.get(APPLICATION, "smtp_port")
 #
 MAIL_FROM = config.get(APPLICATION, "mail_from")
 MAIL_TO = config.get(APPLICATION, "mail_to")

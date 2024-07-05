@@ -49,10 +49,10 @@ def send_message(service, user_id, message):
 	"""Send an email message."""
 	try:
 		message = service.users().messages().send(userId=user_id, body=message).execute()
-		log.info(f'Message Id: {message["id"]}')
+		log.info(f'Message sent, Id: {message["id"]}')
 		return message
 	except HttpError as error:
-		log.error(f'An error occurred: {error}')
+		log.error(f"Can't send the message, an error occurred: {error}")
 		return None
 
 
@@ -61,29 +61,31 @@ def check_website(url, text, already_down):
 		response = requests.get(url)
 		response.raise_for_status()  # Raise an HTTPError for bad responses
 		if text in response.text:
-			log.info(f"The text '{text}' was found on the website. The site is up and running!")
+			message = f"The text '{text}' was found on the website {url}. The site is up and running!"
 			if not already_down:
-				log.info(f"The server is up or Email already sent, skipping")  # mail already sent
+				message += f" The server is up or Email already sent, skipping"  # mail already sent
 			else:
-				send_email(False)
+				send_email(url, False)
+			log.info(message)
 			return False
 		else:
-			log.error(f"The text '{text}' was not found on the website! SITE MAY BE DOWN!")
+			message = f"The text '{text}' was not found on the website {url}! SITE MAY BE DOWN!"
 			if already_down:
-				log.info(f"Email already sent, skipping")  # mail already sent
+				message += f" Email already sent, skipping"  # mail already sent
 			else:
-				send_email(True)
+				send_email(url, True)
+			log.error(message)
 			return True
 	except requests.exceptions.RequestException as e:
 		log.info(f"An error occurred: {e}")
 		if already_down:
 			log.info(f"Email already sent, skipping")  # mail already sent
 		else:
-			send_email(already_down)
+			send_email(url, already_down)
 		return True
 
 
-def send_email(is_down):
+def send_email(url, is_down):
 	"""Shows basic usage of the Gmail API.
 	Lists the user's Gmail labels and sends an email.
 	"""
@@ -114,23 +116,30 @@ def send_email(is_down):
 		sender = Constants.MAIL_FROM
 		to = Constants.MAIL_TO  # if > 1, comma separate it
 
+		cleaned_url = url.replace("https://", "").replace("www.", "")  # for better email spam control
 		if is_down:
-			subject = Constants.MAIL_SUBJECT_DOWN
-			message_text = Constants.MAIL_BODY_DOWN
+			subject = f"{cleaned_url} {Constants.MAIL_SUBJECT_DOWN}"
+			message_text = f"{cleaned_url} {Constants.MAIL_BODY_DOWN}"
 		else:
-			subject = Constants.MAIL_SUBJECT_UP
-			message_text = Constants.MAIL_BODY_UP
+			subject = f"{cleaned_url} {Constants.MAIL_SUBJECT_UP}"
+			message_text = f"{cleaned_url} {Constants.MAIL_BODY_UP}"
 
 		message = create_message(sender, to, subject, message_text)
 		send_message(service, "me", message)
 
 	except HttpError as error:
-		# TODO - Handle errors from gmail API.
 		log.error(f"An error occurred: {error}")
 
 
 if __name__ == '__main__':
-	is_server_down_alreyady_down = False
+	urls = Constants.URLS.split(",")
+	texts = Constants.TEXTS.split(",")
+	is_server_alreyady_down_array = [False] * len(urls)
+	#
+	if len(urls) != len(texts):
+		log.error("config.properies's data is inconsistent!")
+	#
 	while True:
-		is_server_down_alreyady_down = check_website(Constants.URL, Constants.TEXT, is_server_down_alreyady_down)
-		time.sleep(int(Constants.SLEEP))
+		for i in range(len(urls)):
+			is_server_alreyady_down_array[i] = check_website(urls[i], texts[i], is_server_alreyady_down_array[i])
+			time.sleep(int(Constants.SLEEP))
