@@ -49,3 +49,5 @@ mail_body_up=Il sito sito.com di prod è tornato up!
 ## TODO
 
 + multisito
++ log più corti
++ pulizia properties non usate
