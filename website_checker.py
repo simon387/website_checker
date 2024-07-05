@@ -33,29 +33,6 @@ log.basicConfig(
 SCOPES = ["https://www.googleapis.com/auth/gmail.send"]
 
 
-def create_message(sender, to, subject, message_text):
-	"""Create a message for an email."""
-	message = MIMEText(message_text)
-	message['To'] = to
-	message['From'] = sender
-	message['Subject'] = subject
-	message['Date'] = formatdate(localtime=True)
-	message['Message-ID'] = f'<{uuid.uuid4()}@gmail.com>'
-	raw = base64.urlsafe_b64encode(message.as_bytes()).decode()
-	return {'raw': raw}
-
-
-def send_message(service, user_id, message):
-	"""Send an email message."""
-	try:
-		message = service.users().messages().send(userId=user_id, body=message).execute()
-		log.info(f'Message sent, Id: {message["id"]}')
-		return message
-	except HttpError as error:
-		log.error(f"Can't send the message, an error occurred: {error}")
-		return None
-
-
 def check_website(url, text, already_down):
 	try:
 		response = requests.get(url)
@@ -86,8 +63,7 @@ def check_website(url, text, already_down):
 
 
 def send_email(url, is_down):
-	"""Shows basic usage of the Gmail API.
-	Lists the user's Gmail labels and sends an email.
+	"""sends an email wit the Gmail API.
 	"""
 	creds = None
 	# The file token.json stores the user's access and refresh tokens, and is
@@ -109,13 +85,9 @@ def send_email(url, is_down):
 			token.write(creds.to_json())
 
 	try:
-		# Call the Gmail API
-		service = build("gmail", "v1", credentials=creds)
-
-		# Send an email
+		service = build("gmail", "v1", credentials=creds)  # Call the Gmail API
 		sender = Constants.MAIL_FROM
 		to = Constants.MAIL_TO  # if > 1, comma separate it
-
 		cleaned_url = url.replace("https://", "").replace("www.", "")  # for better email spam control
 		if is_down:
 			subject = f"{cleaned_url} {Constants.MAIL_SUBJECT_DOWN}"
@@ -126,9 +98,29 @@ def send_email(url, is_down):
 
 		message = create_message(sender, to, subject, message_text)
 		send_message(service, "me", message)
-
 	except HttpError as error:
 		log.error(f"An error occurred: {error}")
+
+
+def create_message(sender, to, subject, message_text):
+	message = MIMEText(message_text)
+	message['To'] = to
+	message['From'] = sender
+	message['Subject'] = subject
+	message['Date'] = formatdate(localtime=True)
+	message['Message-ID'] = f'<{uuid.uuid4()}@gmail.com>'
+	raw = base64.urlsafe_b64encode(message.as_bytes()).decode()
+	return {'raw': raw}
+
+
+def send_message(service, user_id, message):
+	try:
+		message = service.users().messages().send(userId=user_id, body=message).execute()
+		log.info(f'Message sent, Id: {message["id"]}')
+		return message
+	except HttpError as error:
+		log.error(f"Can't send the message, an error occurred: {error}")
+		return None
 
 
 if __name__ == '__main__':
@@ -138,8 +130,8 @@ if __name__ == '__main__':
 	#
 	if len(urls) != len(texts):
 		log.error("config.properies's data is inconsistent!")
-	#
-	while True:
-		for i in range(len(urls)):
-			is_server_alreyady_down_array[i] = check_website(urls[i], texts[i], is_server_alreyady_down_array[i])
-			time.sleep(int(Constants.SLEEP))
+	else:
+		while True:
+			for i in range(len(urls)):
+				is_server_alreyady_down_array[i] = check_website(urls[i], texts[i], is_server_alreyady_down_array[i])
+				time.sleep(int(Constants.SLEEP))
