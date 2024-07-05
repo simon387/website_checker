@@ -34,15 +34,10 @@ Create a google cloud up, turn on gmail api, create an user, obtains credentials
 ```
 [application]
 log.level=info
-url=www.sito.com
-text=
+urls=www.sito.com,www.other.com
+# for now, comma in text is not supported!
+texts=fool,bar
 sleep=60
-#
-mail_app_name=website_checker
-mail_app_pass=
-#
-smtp_server=smtp.gmail.com
-smtp_port=587
 #
 mail_from=
 mail_to=mail1@gmail.com,mail2@gmail.com
