@@ -1,12 +1,18 @@
 # website_checker
 
+Checks if givens sites are up and running, and mail notify using a google account (goole cloud needed)
+
 ## setup
+
+Python's libraries needed:
 
 ```
 pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
 ```
 
-```credentials.json``` from google console:
+Create a google cloud up, turn on gmail api, create an user, obtains credentials.
+
+```credentials.json``` from google console looks like this:
 
 ```json
 {
@@ -39,7 +45,7 @@ smtp_server=smtp.gmail.com
 smtp_port=587
 #
 mail_from=
-mail_to=
+mail_to=mail1@gmail.com,mail2@gmail.com
 mail_subject_down=sito.com down!
 mail_body_down=Il sito sito.com di prod potrebbe essere down!
 mail_subject_up=sito.com up!
