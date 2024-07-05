@@ -48,8 +48,8 @@ mail_subject_up=up!
 mail_body_up=è tornato up!
 ```
 
-## TODO
+## TODOs
 
-+ multisito
-+ log più corti
-+ pulizia properties non usate
++ ~~multisito~~
++ ~~log più corti~~
++ ~~pulizia properties non usate~~
