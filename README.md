@@ -53,3 +53,4 @@ mail_body_up=è tornato up!
 + ~~multisito~~
 + ~~log più corti~~
 + ~~pulizia properties non usate~~
++ forse bug di email che partono quando cmq è up ma ti avvisa lo stesso?
