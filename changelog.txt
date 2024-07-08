@@ -1,3 +1,6 @@
+Version 1.3.5
+- shorter logs
+
 Version 1.3.4
 - code refactoring
 
