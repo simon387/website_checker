@@ -13,6 +13,7 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from pyrogram import Client
 
 import Constants
 
@@ -42,7 +43,7 @@ def check_website(url, text, already_down):
 			if not already_down:
 				log_message += f" Is up or mail already sent"  # mail already sent
 			else:
-				send_email(url, False)
+				send_alert(url, False)
 			log.info(log_message)
 			return False
 		else:
@@ -50,7 +51,7 @@ def check_website(url, text, already_down):
 			if already_down:
 				log_message += f" Email already sent, skipping"  # mail already sent
 			else:
-				send_email(url, True)
+				send_alert(url, True)
 			log.error(log_message)
 			return True
 	except requests.exceptions.RequestException as e:
@@ -58,8 +59,17 @@ def check_website(url, text, already_down):
 		if already_down:
 			log.info(f"Email already sent, skipping")  # mail already sent
 		else:
-			send_email(url, already_down)
+			send_alert(url, already_down)
 		return True
+
+
+def send_alert(url, is_down):
+	if Constants.USE_TELEGRAM == 'true':
+		log.info(f"Using telegram!")
+		send_telegram(url, is_down)
+	else:
+		log.info(f"Using email!")
+		send_email(url, is_down)
 
 
 def send_email(url, is_down):  # sends an email with the Gmail API.
@@ -119,6 +129,26 @@ def send_message(service, user_id, message):
 	except HttpError as error:
 		log.error(f"Can't send the message, an error occurred: {error}")
 		return None
+
+
+def send_telegram(url, is_down):
+	if is_down:
+		message_text = f"{url} {Constants.MAIL_BODY_DOWN}"
+	else:
+		message_text = f"{url} {Constants.MAIL_BODY_UP}"
+	#
+	app = Client("default_session", Constants.API_ID, Constants.API_HASH)
+	with app:
+		user = app.get_me()
+		print(f"Logged in as {user.first_name} (ID: {user.id})")
+
+		# Replace 'me' with your user ID if using bot
+		chat_id =  user.id
+		# Send the message
+		app.send_message("me", "Hello, this is a test message!")
+		app.mark_chat_unread("me")
+		# app.send_message("me", message_text)
+		log.info(f"Message sent using telegram API, text: {message_text}")
 
 
 if __name__ == '__main__':

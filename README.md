@@ -46,6 +46,10 @@ mail_subject_down=down!
 mail_body_down=potrebbe essere down!
 mail_subject_up=up!
 mail_body_up=è tornato up!
+#
+use_telegram=true
+api.id=
+api.hash=
 ```
 
 ## TODOs
