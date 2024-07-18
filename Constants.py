@@ -25,3 +25,7 @@ MAIL_SUBJECT_DOWN = config.get(APPLICATION, "mail_subject_down")
 MAIL_BODY_DOWN = config.get(APPLICATION, "mail_body_down")
 MAIL_SUBJECT_UP = config.get(APPLICATION, "mail_subject_up")
 MAIL_BODY_UP = config.get(APPLICATION, "mail_body_up")
+#
+USE_TELEGRAM = config.get(APPLICATION, "use.telegram")
+API_ID = config.get(APPLICATION, "api.id")
+API_HASH = config.get(APPLICATION, "api.hash")

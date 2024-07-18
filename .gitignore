@@ -5,3 +5,4 @@ _test.log*
 __pycache__/
 credentials.json
 token.json
+default_session.session
